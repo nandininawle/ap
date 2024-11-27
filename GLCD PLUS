@@ -1,0 +1,80 @@
+#include <lpc214x.h>
+
+#define LCD_Data (0x00FF0000)
+#define GRESET (1<<24)  //30
+#define RS (1<<25)      //27
+#define CS1 (1<<26)     //26
+#define CS2 (1<<27)     // 25
+#define EN (1<<10)      //31
+#define RW (1<<11)      //24
+#define shift 16
+
+void sdelay(unsigned int time) {
+    for(int i=0;i<time;i++)
+        for(int j=0;j<10;j++);
+}
+
+void ldelay(unsigned int time) {
+    for(int i=0;i<time;i++)
+        for(int j=0;j<5000;j++);
+}
+
+void LCD_EN() {
+    IOSET0 = EN; 
+    sdelay(5); 
+    IOCLR0 = EN; 
+    sdelay(5);
+}
+
+void LCD_cmd(unsigned char ch) {
+    IOCLR1 = LCD_Data; 
+    IOCLR1 = RS; 
+    IOSET1 = ch << shift; 
+    LCD_EN();
+}
+
+void LCD_inst(unsigned char ch) {
+    IOCLR1 = LCD_Data; 
+    IOSET1 = RS; 
+    IOSET1 = ch << shift; 
+    LCD_EN();
+}
+
+void glcd_init() {
+    int i; 
+    PINSEL0 = 0x00000000; 
+    PINSEL2 = 0x00000000; 
+    IODIR1 = LCD_Data | GRESET | RS | CS1 | CS2; 
+    IODIR0 = EN | RW; 
+    IOCLR0 = EN | RW; 
+    IOCLR1 = RS; 
+    IOSET1 = GRESET | CS1 | CS2; 
+    for(i = 0; i < 10; i++) {
+        LCD_cmd(0x3F);
+    }
+    LCD_cmd(0xB8); 
+    LCD_cmd(0x40);
+}
+
+int main() {
+    int i, j, m, n; 
+    glcd_init(); 
+    IOSET1 = CS1; 
+    IOCLR1 = CS2; 
+    for(i = 1; i <= 6; i++) {
+        LCD_cmd(0xB8 | i); 
+        for(j = 28; j < 36; j++) {
+            LCD_cmd(0x40 | j); 
+            LCD_inst(0x00);
+        }
+    }
+    for(m = 2; m <= 4; m++) {
+        IOSET1 = CS1; 
+        IOCLR1 = CS2; 
+        LCD_cmd(0xB8 | i); 
+        for(n = 14; n < 54; n++) {
+            LCD_cmd(0x40 | j); 
+            LCD_inst(0x00);
+        }
+    }
+}
