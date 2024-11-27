@@ -1,0 +1,30 @@
+#include<lpc214x.h> 
+void delay (int t) 
+{ 
+unsigned int i , j ; 
+for(i=0 ; i<3000 ; i++) 
+{ 
+for( j=0 ; j<i ; j++); 
+} 
+} 
+int main() 
+{ unsigned int i; 
+PINSEL2=0x00000000; //foc
+IODIR1=0xFF000000;   //foc
+
+
+  PINSEL0 = 0x00000000; //c2
+	PINSEL1 = 0x00000000;  //c2
+	IODIR0 = 0x000FF000;   //c2
+
+
+
+for(i=0;i<7;i+=1) 
+{ 
+IOSET1=0xC0000000>>(i); 
+delay(5000); 
+IOCLR1=0xC0000000>>(i); 
+delay(5000); 
+} 
+return 0;
+}
