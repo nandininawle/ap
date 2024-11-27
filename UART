@@ -1,0 +1,75 @@
+
+void UART0Init() 
+{
+    PINSEL0 |= 0x00000005;
+    U0FCR = 0x07;
+    U0LCR = 0x83;
+    U0DLM = 0x00;
+    U0DLL = 0x62;
+    U0LCR = 0x03;
+}
+
+unsigned char UART0_PutChar(unsigned char ch) 
+{
+    if (ch == '\n') 
+    {
+        while (!(U0LSR & 0x20));
+        U0THR = 0x0D;
+    }
+    while (!(U0LSR & 0x20));
+    return (U0THR = ch);
+}
+
+unsigned char UART0_GetChar(void) 
+{
+    while (!(U0LSR & 0x01));
+    return (U0RBR);
+}
+
+void UART0_Puts(unsigned char *str) 
+{
+    while (1) 
+    {
+        if (*str == '\0')
+            break;
+        UART0_PutChar(*str++);
+    }
+}
+
+void UART1Init() 
+{
+    PINSEL0 |= 0x00050000;
+    U1FCR = 0x07;
+    U1LCR = 0x83;
+    U1DLM = 0x00;
+    U1DLL = 0x62;
+    U1LCR = 0x03;
+}
+
+unsigned char UART1_PutChar(unsigned char ch) 
+{
+    if (ch == '\n') 
+    {
+        while (!(U1LSR & 0x20));
+        U1THR = 0x0D;
+    }
+    while (!(U1LSR & 0x20));
+    return (U1THR = ch);
+}
+
+unsigned char UART1_GetChar(void) 
+{
+    while (!(U1LSR & 0x01));
+    return (U1RBR);
+}
+
+void UART1_Puts(unsigned char *str) 
+{
+    while (1) 
+    {
+        if (*str == '\0')
+            break;
+        UART1_PutChar(*str++);
+    }
+}
+
