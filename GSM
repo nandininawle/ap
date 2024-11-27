@@ -1,0 +1,132 @@
+ #include<lpc214x.h>
+ #include"UART.c"
+ unsigned char msg_1[]="GSM program started UART initialised\n";
+ unsigned char AT_cmd[]="AT\n\r";
+ unsigned char ATD_string[]="ATD09823099003;\n\r";
+ unsigned char ATH_string[]="ATH0\n\r";
+ unsigned char cmgf[]="AT+CMGF=1\n\r";
+ unsigned char cmgs[]="AT+CMGS=\"09823099003\"\n\r";
+ unsigned char cnt1_z=0x1a;
+ unsigned char text[]="We are great !!";
+ unsigned char text1[]="\n\r";
+ unsigned char text2[]="task completed";
+ unsigned char rcv_byte;
+ unsigned char rcv_arr[20];
+ void delay(unsigned int time)
+{
+ unsigned int i,j;
+ for(i=0;i<time;i++)
+ for(j=0;j<5000;j++);
+ }
+ int main()
+ {
+ UART0Init();
+ UART1Init();
+ UART0_Puts(msg_1);
+ UART1_Puts(AT_cmd);
+ UART0_Puts(AT_cmd);
+ delay(1);
+ UART1_Puts(ATD_string);
+ UART0_Puts(ATD_string);
+ delay(50000);
+ UART1_Puts(ATH_string);
+ UART0_Puts(ATH_string);
+ delay(3000);
+ UART1_Puts(cmgf);
+ UART0_Puts(cmgf);
+ delay(3000);
+ UART1_Puts(cmgs);
+ UART0_Puts(cmgs);
+ delay(10000);
+ UART1_Puts(text);
+ UART0_Puts(text);
+ delay(3000);
+ UART1_PutChar(cnt1_z);
+ UART0_PutChar(cnt1_z);
+ UART1_Puts(text1);
+ UART0_Puts(text1);
+ UART1_Puts(text2);
+ UART0_Puts(text2);
+ delay(100);
+ while(1);
+ return 0;
+ }
+
+
+///uart
+
+
+void UART0Init() 
+{
+    PINSEL0 |= 0x00000005;
+    U0FCR = 0x07;
+    U0LCR = 0x83;
+    U0DLM = 0x00;
+    U0DLL = 0x62;
+    U0LCR = 0x03;
+}
+
+unsigned char UART0_PutChar(unsigned char ch) 
+{
+    if (ch == '\n') 
+    {
+        while (!(U0LSR & 0x20));
+        U0THR = 0x0D;
+    }
+    while (!(U0LSR & 0x20));
+    return (U0THR = ch);
+}
+
+unsigned char UART0_GetChar(void) 
+{
+    while (!(U0LSR & 0x01));
+    return (U0RBR);
+}
+
+void UART0_Puts(unsigned char *str) 
+{
+    while (1) 
+    {
+        if (*str == '\0')
+            break;
+        UART0_PutChar(*str++);
+    }
+}
+
+void UART1Init() 
+{
+    PINSEL0 |= 0x00050000;
+    U1FCR = 0x07;
+    U1LCR = 0x83;
+    U1DLM = 0x00;
+    U1DLL = 0x62;
+    U1LCR = 0x03;
+}
+
+unsigned char UART1_PutChar(unsigned char ch) 
+{
+    if (ch == '\n') 
+    {
+        while (!(U1LSR & 0x20));
+        U1THR = 0x0D;
+    }
+    while (!(U1LSR & 0x20));
+    return (U1THR = ch);
+}
+
+unsigned char UART1_GetChar(void) 
+{
+    while (!(U1LSR & 0x01));
+    return (U1RBR);
+}
+
+void UART1_Puts(unsigned char *str) 
+{
+    while (1) 
+    {
+        if (*str == '\0')
+            break;
+        UART1_PutChar(*str++);
+    }
+}
+
