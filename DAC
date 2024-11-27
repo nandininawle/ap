@@ -1,0 +1,150 @@
+SQUARE WAVE CODE
+#include <lpc214x.h>
+#define DACPinMask 1<<19   // Mask for DAC pin (P0.19)
+#define datamask 0x0000FFC0 // Data mask for DAC value
+#define datashift 6         // Bit shift value for DAC data
+
+// Function to create a delay using nested loops.
+void delay(unsigned int n){
+    for(int i=0; i<n; i++){
+        for(int j=0; j<10000; j++){
+            // Delay loop for generating time intervals.
+        }
+    }
+}
+
+void DACinit(){
+    PINSEL1 |= DAC_PinMask; // Set P0.19 as DAC output
+    DACR = 1 << 16;  // Enable DAC output
+}
+
+int main(){
+    DACinit(); // Initialize DAC
+
+    while(1){
+        DACR = 0x00000000; // Set DAC data to 0 (0V)
+        delay(1000);      // Delay for a specified time
+        DACR = 0x0000FFC0; // Set DAC data to maximum (3.3V)
+        delay(1000);      // Delay for a specified time
+    }
+}
+
+
+
+TRIANGULAR WAVE CODE
+#include "lpc214x.h"
+#define DAC_PinMask 1<<19
+#define DAC_DataMask 0x0000FFC0
+#define DataShift 6
+
+void delay(unsigned int time){
+unsigned int i,j;
+for(i=0;i<time;i++)
+for(j=0;j<5000;j++);
+}
+
+void DAC_init(void)
+{
+	PINSEL1 |= DAC_PinMask;
+	DACR |= 1<<16;
+}
+
+int main(void)
+{
+	int i; 
+	DAC_init();					//initialise dac interface
+	while(1)
+	{
+		for(i=0;i<1024;i++)										//send data to DAC
+		{
+			DACR = (DAC_DataMask & (i<<DataShift));				
+		}
+		for(i=1023;i>0;i--)											//send data to DAC
+		{
+			DACR = (DAC_DataMask & (i<<DataShift));
+			
+		}
+	}
+	return 0;
+}
+
+
+
+STAIRCASE WAVEFORM CODE
+#include <lpc214x.h>
+#define dacpinmask 1<<19       // Mask for DAC pin (P0.19)
+#define datamask 0x0000FFC0    // Data mask for DAC value
+#define datashift 6            // Bit shift value for DAC data
+
+// Function to create a delay using nested loops.
+void delay(unsigned int n){
+    for(int i=0; i<n; i++){
+        for(int j=0; j<5000; j++){
+            // Delay loop for generating time intervals.
+        }
+    }
+}
+
+// Function to initialize the DAC pins and settings.
+void dacinit(){
+    PINSEL1 |= dacpinmask; // Set P0.19 as DAC output
+    DACR = 1 << 16;        // Enable DAC output
+}
+
+int main(){
+    dacinit(); // Initialize DAC
+
+    while(1){
+        // Generate an increasing staircase waveform.
+        for(int i=0; i<1023; i=i+204){
+            DACR = (datamask & (i << datashift)); // Set DAC data to the current value
+            delay(1000);  // Delay for a specified time
+        }
+        
+        // Generate a decreasing staircase waveform.
+        for(int i=1023; i>0; i=i-204){
+            DACR = (datamask & (i << datashift)); // Set DAC data to the current value
+            delay(1000);                          // Delay for a specified time
+        }
+    }
+}
+
+
+
+STAIRCASE + TRIANGLE
+#include <lpc214x.h>
+
+#define dacpinmask 1<<19       // Mask for DAC pin (P0.19)
+#define datamask 0x0000FFC0    // Data mask for DAC value
+#define datashift 6            // Bit shift value for DAC data
+
+void delay(unsigned int n){
+    for(int i=0; i<n; i++){
+        for(int j=0; j<50; j++){
+            // Delay loop for generating time intervals.
+        }
+    }
+}
+
+void dacinit(){
+    PINSEL1 |= dacpinmask; // Set P0.19 as DAC output
+    DACR = 1 << 16;        // Enable DAC output
+}
+
+int main(){
+    dacinit(); // Initialize DAC
+
+    while(1){
+        // Generate an increasing staircase waveform.
+        for(int i=0; i<=1023; i=i+204){
+            DACR = (datamask & (i << datashift)); // Set DAC data to the current value
+            delay(10);                          // Delay for a specified time
+        }
+        
+        
+        for(int j=1023;j>0;j--){
+					DACR=(datamask & (j << datashift));
+					//delay(1000);
+			}
+    }
+}
